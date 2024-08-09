@@ -1,0 +1,39 @@
+IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquet')
+    CREATE EXTERNAL FILE FORMAT [SynapseParquet] 
+    WITH (
+        FORMAT_TYPE = PARQUET
+    );
+GO
+
+
+IF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'silver_storageaccountretail_dfs_core_windows_net') 
+	CREATE EXTERNAL DATA SOURCE [silver_storageaccountretail_dfs_core_windows_net] 
+	WITH (
+		LOCATION = 'abfss://silver@storageaccountretail.dfs.core.windows.net' 
+	)
+GO
+
+CREATE EXTERNAL TABLE dbo.finaldata (
+	[Customer ID] nvarchar(4000),
+	[Age] INT,
+	[Gender] nvarchar(4000),
+	[Item Purchased] nvarchar(4000),
+	[Category] nvarchar(4000),
+	[Purchase Amount (USD)] INT,
+	[Location] nvarchar(4000),
+	[Subscription Status] nvarchar(4000),
+	[Season] nvarchar(4000),
+	[Shipping Type] nvarchar(4000),
+	[Payment Method] nvarchar(4000),
+	[Frequency of Purchases] nvarchar
+	)
+	WITH (
+	LOCATION = 'part-00000-tid-1640037088541906430-17b11f2e-5b9f-496b-861a-a7f2d6d37a23-8-1.c000.snappy.parquet',
+	DATA_SOURCE = [silver_storageaccountretail_dfs_core_windows_net],
+	FILE_FORMAT = [SynapseParquet]
+	)
+GO
+
+
+SELECT TOP 100 * FROM dbo.retaildata
+GO
